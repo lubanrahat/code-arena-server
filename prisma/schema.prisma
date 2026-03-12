@@ -12,13 +12,17 @@ datasource db {
   provider = "postgresql"
 }
 
-model Test {
-  id    Int     @id @default(autoincrement())
-  name  String
-  email String  @unique
-  role  Role    @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+   id  String @id  @default(uuid())
+   firstName String
+   lastName String
+   userName String @unique
+   email String @unique
+   password String
+   role Role @default(USER)
+   imageUrl  String?
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
 }
 
 enum Role {
