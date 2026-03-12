@@ -5,6 +5,7 @@ import { requestLogger } from "./shared/middlewares/request-logger.middleware";
 import { errorHandler } from "./shared/middlewares/global-error.middleware";
 import { notFound } from "./shared/middlewares/not-found.middlewares";
 import { IndexRouter } from "./routes";
+import cookieParser from "cookie-parser";
 
 function createApplication(): Application {
   const app: Application = express();
@@ -20,6 +21,7 @@ function createApplication(): Application {
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   // Global request processing middlewares
   app.use(requestIdMiddleware);

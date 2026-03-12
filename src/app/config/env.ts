@@ -7,6 +7,9 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(8080),
   //Database
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  //JWT
+  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  JWT_EXPIRES_IN: z.string().min(1, "JWT_EXPIRES_IN is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -25,6 +28,10 @@ const config = {
   },
   database: {
     url: env.DATABASE_URL,
+  },
+  jwt: {
+    secret: env.JWT_SECRET,
+    expiresIn: env.JWT_EXPIRES_IN,
   },
 };
 
