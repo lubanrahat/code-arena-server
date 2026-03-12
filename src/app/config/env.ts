@@ -10,6 +10,8 @@ const envSchema = z.object({
   //JWT
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_EXPIRES_IN: z.string().min(1, "JWT_EXPIRES_IN is required"),
+  //JUDGE0
+  JUDGE0_API_KEY: z.string().min(1, "JUDGE0_API_KEY is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -32,6 +34,9 @@ const config = {
   jwt: {
     secret: env.JWT_SECRET,
     expiresIn: env.JWT_EXPIRES_IN,
+  },
+  judge0: {
+    apiKey: env.JUDGE0_API_KEY,
   },
 };
 

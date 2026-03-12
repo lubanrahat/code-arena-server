@@ -13,19 +13,52 @@ datasource db {
 }
 
 model User {
-   id  String @id  @default(uuid())
-   firstName String
-   lastName String
-   userName String @unique
-   email String @unique
-   password String
-   role Role @default(USER)
-   imageUrl  String?
-   createdAt DateTime @default(now())
-   updatedAt DateTime @updatedAt
+  id        String  @id @default(uuid())
+  firstName String
+  lastName  String
+  userName  String  @unique
+  email     String  @unique
+  password  String
+  role      Role    @default(USER)
+  imageUrl  String?
+
+  problems Problem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Problem {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  tags        String[]
+  userId      String
+  examples    Json
+  constraints String
+  hints       String?
+  editorial   String?
+
+  testCases          Json
+  codeSnippets       Json
+  referenceSolutions Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([difficulty])
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
 }
