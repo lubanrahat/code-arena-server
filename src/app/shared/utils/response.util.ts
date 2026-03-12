@@ -1,0 +1,68 @@
+import type { Response } from "express";
+import HttpStatus from "../constants/http-status";
+import type { ApiResponse } from "../types/response.types";
+
+export class ResponseUtil {
+  static success<T>(
+    res: Response,
+    data: T,
+    message?: string,
+    statusCode = HttpStatus.OK,
+  ) {
+    const response: ApiResponse<T> = {
+      success: true,
+      message: message || "Success",
+      data,
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    };
+    return res.status(statusCode).json(response);
+  }
+
+  static error(
+    res: Response,
+    message: string,
+    statusCode = HttpStatus.INTERNAL_SERVER_ERROR,
+    errorCode?: string,
+    details?: any,
+  ) {
+    const response: ApiResponse = {
+      success: false,
+      error: {
+        code: errorCode || "INTERNAL_ERROR",
+        message,
+        details,
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    };
+    return res.status(statusCode).json(response);
+  }
+
+  static paginated<T>(
+    res: Response,
+    data: T[],
+    page: number,
+    limit: number,
+    total: number,
+    message?: string,
+  ) {
+    const response: ApiResponse<T[]> = {
+      success: true,
+      message: message || "Success",
+      data,
+      meta: {
+        timestamp: new Date().toISOString(),
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+    };
+    return res.status(HttpStatus.OK).json(response);
+  }
+}
