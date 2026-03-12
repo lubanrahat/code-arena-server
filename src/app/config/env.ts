@@ -5,6 +5,8 @@ const envSchema = z.object({
   //Application
   NODE_ENV: z.enum(["development", "production", "test"]),
   PORT: z.coerce.number().default(8080),
+  //Database
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -20,6 +22,9 @@ const config = {
   app: {
     nodeEnv: env.NODE_ENV,
     port: env.PORT,
+  },
+  database: {
+    url: env.DATABASE_URL,
   },
 };
 
