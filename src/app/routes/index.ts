@@ -1,9 +1,12 @@
-import { Router } from "express"
+import { Router } from "express";
+import registerHealthRoutes from "../modules/health/health.routes";
 
 export const registerIndexRoutes = (): Router => {
-    const router: Router = Router()
+  const router: Router = Router();
 
-    return router
-}
+  router.use(registerHealthRoutes());
+
+  return router;
+};
 
 export const IndexRouter = registerIndexRoutes();
