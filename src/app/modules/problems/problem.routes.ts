@@ -1,0 +1,25 @@
+import express, { type Router } from "express";
+import ProblemController from "./problem.controller";
+import {
+  authenticate,
+  authorize,
+} from "../../shared/middlewares/auth.middleware";
+import { Role } from "../../../../generated/prisma/enums";
+import { validateRequest } from "../../shared/middlewares/validate.middleware";
+import { problemCreateSchema } from "./problem.validation";
+
+export default function registerProblemRoutes(): Router {
+  const router = express.Router();
+
+  const problemController = new ProblemController();
+
+  router.post(
+    "/",
+    authenticate,
+    authorize(Role.ADMIN),
+    validateRequest({ body: problemCreateSchema }),
+    problemController.createProblem.bind(problemController),
+  );
+
+  return router;
+}

@@ -4,6 +4,7 @@ import HttpStatus from "../constants/http-status";
 import config from "../../config/env";
 import JwtService from "../utils/jwt.util";
 import type { Role } from "../../../../generated/prisma/client";
+import { logger } from "../logger/logger";
 
 export const authenticate = (
   req: Request,
@@ -11,14 +12,10 @@ export const authenticate = (
   next: NextFunction,
 ) => {
   try {
-    let token = req.cookies?.token;
+    const token = req.cookies?.token;
 
-    if (!token) {
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith("Bearer ")) {
-        token = authHeader.substring(7);
-      }
-    }
+
+    console.log("Token -> ", req.cookies);
 
     if (!token) {
       return next(

@@ -1,6 +1,34 @@
 import { z } from "zod";
 
-export const problemCreateSchema = z.object({
+export enum Difficulty {
+  EASY = "EASY",
+  MEDIUM = "MEDIUM",
+  HARD = "HARD",
+}
+
+export enum Language {
+  JAVASCRIPT = "JAVASCRIPT",
+  PYTHON = "PYTHON",
+  CPP = "CPP",
+  GO = "GO",
+}
+
+// Reusable language enum derived directly from the TypeScript enum
+const languageEnum = z.enum(Object.values(Language) as [string, ...string[]], {
+  error: "Unsupported language",
+});
+
+export const problemCreateSchema = z.preprocess(
+  (data: any) => {
+    // Accept "example" (singular object) and convert to "examples" (array)
+    if (data && !data.examples && data.example) {
+      const example = data.example;
+      data.examples = Array.isArray(example) ? example : [example];
+      delete data.example;
+    }
+    return data;
+  },
+  z.object({
   title: z
     .string()
     .min(3, "Title must be at least 3 characters")
@@ -13,7 +41,7 @@ export const problemCreateSchema = z.object({
     .max(10000, "Description must not exceed 10,000 characters")
     .trim(),
 
-  difficulty: z.enum(["EASY", "MEDIUM", "HARD"], {
+  difficulty: z.nativeEnum(Difficulty, {
     error: "Difficulty must be EASY, MEDIUM, or HARD",
   }),
 
@@ -39,16 +67,14 @@ export const problemCreateSchema = z.object({
     .trim(),
 
   hints: z
-    .string()
-    .max(2000, "Hints must not exceed 2,000 characters")
-    .trim()
+    .array(z.string().max(2000, "Each hint must not exceed 2,000 characters").trim())
     .optional(),
 
-  editorial: z // now optional to match Prisma
+  editorial: z
     .string()
+    .min(10, "Editorial must be at least 10 characters")
     .max(20000, "Editorial must not exceed 20,000 characters")
-    .trim()
-    .optional(),
+    .trim(),
 
   testCases: z
     .array(
@@ -61,16 +87,18 @@ export const problemCreateSchema = z.object({
     .min(1, "At least one test case is required"),
 
   codeSnippets: z.record(
-    z.enum(["JAVASCRIPT", "PYTHON", "CPP", "GO"], {
-      error: "Unsupported language",
+    z.string(),
+    z.object({
+      code: z.string().min(1, "Code snippet cannot be empty"),
+      language: z.string(),
     }),
-    z.string().min(1, "Code snippet cannot be empty"),
   ),
 
   referenceSolutions: z.record(
-    z.enum(["JAVASCRIPT", "PYTHON", "CPP", "GO"], {
-      error: "Unsupported language",
-    }),
+    z.string(),
     z.string().min(1, "Reference solution cannot be empty"),
   ),
-});
+  }),
+);
+
+export type ProblemCreateInput = z.infer<typeof problemCreateSchema>;

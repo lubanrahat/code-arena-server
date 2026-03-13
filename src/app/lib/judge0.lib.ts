@@ -10,7 +10,9 @@ export function getJudgeOLanguageId(language: string) {
   return languageMap[language.toUpperCase()] || 71;
 }
 
-export async function submitToJudge0(submissions: any[]) {
+export async function submitToJudge0(
+  submissions: any[],
+): Promise<Judge0Submission[] | Judge0BatchResponse> {
   const response = await fetch(
     "https://judge0-ce.p.rapidapi.com/submissions/batch?base64_encoded=false",
     {
@@ -25,7 +27,9 @@ export async function submitToJudge0(submissions: any[]) {
       }),
     },
   );
-  const data = await response.json();
+  const data = (await response.json()) as
+    | Judge0Submission[]
+    | Judge0BatchResponse;
   console.log(data);
   return data;
 }
@@ -35,12 +39,13 @@ interface Judge0Status {
   description: string;
 }
 
-interface Judge0Submission {
+export interface Judge0Submission {
+  token: string;
   status: Judge0Status;
   [key: string]: any;
 }
 
-interface Judge0BatchResponse {
+export interface Judge0BatchResponse {
   submissions: Judge0Submission[];
 }
 
