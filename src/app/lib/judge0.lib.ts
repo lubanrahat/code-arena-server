@@ -2,6 +2,7 @@ import config from "../config/env";
 
 export function getJudgeOLanguageId(language: string) {
   const languageMap: Record<string, number> = {
+    PYTHON: 71,
     JAVASCRIPT: 63,
     CPP: 54,
     GO: 60,
