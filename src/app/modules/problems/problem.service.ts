@@ -24,7 +24,6 @@ class ProblemService {
 
     // Validate reference solutions and prepare submissions
 
-
     for (const [language, solution] of Object.entries(referenceSolutions)) {
       if (typeof solution !== "string") {
         throw new AppError("Reference solution must be a string", HttpStatus.BAD_REQUEST,ErrorCodes.INVALID_INPUT);
@@ -43,7 +42,7 @@ class ProblemService {
       }));
 
       const submissionResult = await submitToJudge0(submissions);
-      console.log("Submission result:", submissionResult);
+      logger.info("Submission result:", submissionResult);
 
       // Handle different response formats
       const tokens = Array.isArray(submissionResult)
@@ -53,10 +52,10 @@ class ProblemService {
           ) || [];
 
       const results = await poolBatchResult(tokens);
-      console.log(results);
+      logger.info("Results:", results);
       for (let i = 0; i < results.length; i++) {
         const result = results[i];
-        console.log(result);
+        logger.info("Result:", result);
 
         if (result && result.status.id !== 3) {
           logger.error({
@@ -80,6 +79,7 @@ class ProblemService {
         tags,
         examples,
         constraints,
+        hints,
         editorial,
         testCases,
         referenceSolutions,
