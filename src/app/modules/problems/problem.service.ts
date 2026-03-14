@@ -91,6 +91,13 @@ class ProblemService {
     return newProblem;
 
   };
+  public getAllProblems = async () => {
+    const problems = await prisma.problem.findMany();
+    if(!problems){
+      throw new AppError("No problems found", HttpStatus.NOT_FOUND,ErrorCodes.NOT_FOUND);
+    }
+    return problems;
+  };
 }
 
 export default ProblemService;

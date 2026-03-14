@@ -19,6 +19,17 @@ class ProblemController {
       HttpStatus.CREATED,
     );
   });
+  public getAllProblems = catchAsync(async (req: Request, res: Response) => {
+    const problemService = new ProblemService();
+    const result = await problemService.getAllProblems();
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "Problems fetched successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default ProblemController;

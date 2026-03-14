@@ -21,5 +21,7 @@ export default function registerProblemRoutes(): Router {
     problemController.createProblem.bind(problemController),
   );
 
+  router.get("/", problemController.getAllProblems.bind(problemController));
+
   return router;
 }
