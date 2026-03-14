@@ -56,7 +56,7 @@ model Problem {
 
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   submissions       Submission[]
-  problemSolved     ProblemSolved[]
+  solvedBy          ProblemSolved[]
   problemsPlaylists ProblemInPlaylist[]
 
   @@index([difficulty])
@@ -73,7 +73,7 @@ model Submission {
   stdout        String?
   stderr        String?
   compileOutput String?
-  status        String 
+  status        String
   memory        String?
   time          String?
 

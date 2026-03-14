@@ -85,3 +85,13 @@ export async function poolBatchResult(tokens: string[]) {
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export function getLanguageName(languageId: number) {
+  const languageMap: Record<number, string> = {
+    71: "PYTHON",
+    63: "JAVASCRIPT",
+    54: "CPP",
+    60: "GO",
+  };
+  return languageMap[languageId] || "PYTHON";
+}
