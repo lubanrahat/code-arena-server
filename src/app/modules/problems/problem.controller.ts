@@ -42,6 +42,18 @@ class ProblemController {
       HttpStatus.OK,
     );
   });
+  public deleteProblem = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const problemService = new ProblemService();
+    const result = await problemService.deleteProblem(id as string);
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "Problem deleted successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default ProblemController;

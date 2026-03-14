@@ -1,4 +1,9 @@
-import { getJudgeOLanguageId, poolBatchResult, submitToJudge0, type Judge0Submission } from "../../lib/judge0.lib";
+import {
+  getJudgeOLanguageId,
+  poolBatchResult,
+  submitToJudge0,
+  type Judge0Submission,
+} from "../../lib/judge0.lib";
 import prisma from "../../lib/prisma";
 import HttpStatus from "../../shared/constants/http-status";
 import AppError from "../../shared/errors/app-error";
@@ -7,7 +12,10 @@ import { logger } from "../../shared/logger/logger";
 import type { ProblemCreateInput } from "./problem.validation";
 
 class ProblemService {
-  public createProblem = async (payload: ProblemCreateInput, userId: string) => {
+  public createProblem = async (
+    payload: ProblemCreateInput,
+    userId: string,
+  ) => {
     const {
       title,
       description,
@@ -26,12 +34,20 @@ class ProblemService {
 
     for (const [language, solution] of Object.entries(referenceSolutions)) {
       if (typeof solution !== "string") {
-        throw new AppError("Reference solution must be a string", HttpStatus.BAD_REQUEST,ErrorCodes.INVALID_INPUT);
+        throw new AppError(
+          "Reference solution must be a string",
+          HttpStatus.BAD_REQUEST,
+          ErrorCodes.INVALID_INPUT,
+        );
       }
 
       const languageId = getJudgeOLanguageId(language);
       if (!languageId) {
-        throw new AppError("Unsupported language", HttpStatus.BAD_REQUEST,ErrorCodes.INVALID_INPUT);
+        throw new AppError(
+          "Unsupported language",
+          HttpStatus.BAD_REQUEST,
+          ErrorCodes.INVALID_INPUT,
+        );
       }
 
       const submissions = testCases.map((testCase) => ({
@@ -46,7 +62,9 @@ class ProblemService {
 
       // Handle different response formats
       const tokens = Array.isArray(submissionResult)
-        ? submissionResult.map((submission: Judge0Submission) => submission.token)
+        ? submissionResult.map(
+            (submission: Judge0Submission) => submission.token,
+          )
         : submissionResult?.submissions?.map(
             (submission: Judge0Submission) => submission.token,
           ) || [];
@@ -60,13 +78,17 @@ class ProblemService {
         if (result && result.status.id !== 3) {
           logger.error({
             error: `Failed to verify solution for ${language}`,
-              testCaseIndex: submissions[i]?.stdin,
-              expectedOutput: submissions[i]?.expected_output,
-              actualOutput: result.stdout,
-              compileError: result.compile_output,
-              runtimeError: result.stderr,
+            testCaseIndex: submissions[i]?.stdin,
+            expectedOutput: submissions[i]?.expected_output,
+            actualOutput: result.stdout,
+            compileError: result.compile_output,
+            runtimeError: result.stderr,
           });
-          throw new AppError("Failed to verify solution", HttpStatus.INTERNAL_SERVER_ERROR,ErrorCodes.INTERNAL_ERROR);  
+          throw new AppError(
+            "Failed to verify solution",
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            ErrorCodes.INTERNAL_ERROR,
+          );
         }
       }
     }
@@ -89,12 +111,15 @@ class ProblemService {
     });
 
     return newProblem;
-
   };
   public getAllProblems = async () => {
     const problems = await prisma.problem.findMany();
-    if(!problems){
-      throw new AppError("No problems found", HttpStatus.NOT_FOUND,ErrorCodes.NOT_FOUND);
+    if (!problems) {
+      throw new AppError(
+        "No problems found",
+        HttpStatus.NOT_FOUND,
+        ErrorCodes.NOT_FOUND,
+      );
     }
     return problems;
   };
@@ -104,8 +129,28 @@ class ProblemService {
         id,
       },
     });
-    if(!problem){
-      throw new AppError("Problem not found", HttpStatus.NOT_FOUND,ErrorCodes.NOT_FOUND);
+    if (!problem) {
+      throw new AppError(
+        "Problem not found",
+        HttpStatus.NOT_FOUND,
+        ErrorCodes.NOT_FOUND,
+      );
+    }
+    return problem;
+  };
+  // public updateProblem = async (id: string, payload: any) => {};
+  public deleteProblem = async (id: string) => {
+    const problem = await prisma.problem.delete({
+      where: {
+        id,
+      },
+    });
+    if (!problem) {
+      throw new AppError(
+        "Problem not found",
+        HttpStatus.NOT_FOUND,
+        ErrorCodes.NOT_FOUND,
+      );
     }
     return problem;
   };

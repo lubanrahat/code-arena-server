@@ -25,5 +25,12 @@ export default function registerProblemRoutes(): Router {
 
   router.get("/:id", problemController.getProblemById.bind(problemController));
 
+  router.delete(
+    "/:id",
+    authenticate,
+    authorize(Role.ADMIN),
+    problemController.deleteProblem.bind(problemController),
+  );
+
   return router;
 }
