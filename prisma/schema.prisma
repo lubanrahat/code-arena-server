@@ -22,10 +22,17 @@ model User {
   role      Role    @default(USER)
   imageUrl  String?
 
-  problems Problem[]
+  problems      Problem[]
+  submissions   Submission[]
+  problemSolved ProblemSolved[]
+  playlists     Playlist[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([userName])
+  @@map("users")
 }
 
 model Problem {
@@ -47,9 +54,107 @@ model Problem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissions       Submission[]
+  problemSolved     ProblemSolved[]
+  problemsPlaylists ProblemInPlaylist[]
 
   @@index([difficulty])
+  @@map("problems")
+}
+
+model Submission {
+  id            String  @id @default(uuid())
+  userId        String
+  problemId     String
+  sourceCode    Json
+  language      String
+  stdin         String?
+  stdout        String?
+  stderr        String?
+  compileOutput String?
+  status        String 
+  memory        String?
+  time          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  testCases TestCaseResult[]
+
+  @@index([userId])
+  @@index([problemId])
+  @@map("submissions")
+}
+
+model TestCaseResult {
+  id            String  @id @default(uuid())
+  submissionId  String
+  testCase      Int
+  passed        Boolean
+  stdout        String?
+  expected      String
+  stderr        String?
+  compileOutput String?
+  status        String
+  memory        String?
+  time          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@index([submissionId])
+  @@map("test_case_results")
+}
+
+model ProblemSolved {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@map("problems_solved")
+}
+
+model Playlist {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  problems ProblemInPlaylist[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([name, userId])
+  @@map("playlists")
+}
+
+model ProblemInPlaylist {
+  id         String   @id @default(uuid())
+  playListId String
+  problemId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  playlist Playlist @relation(fields: [playListId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([playListId, problemId])
+  @@map("problems_in_playlists")
 }
 
 enum Role {
