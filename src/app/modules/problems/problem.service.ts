@@ -98,6 +98,17 @@ class ProblemService {
     }
     return problems;
   };
+  public getProblemById = async (id: string) => {
+    const problem = await prisma.problem.findUnique({
+      where: {
+        id,
+      },
+    });
+    if(!problem){
+      throw new AppError("Problem not found", HttpStatus.NOT_FOUND,ErrorCodes.NOT_FOUND);
+    }
+    return problem;
+  };
 }
 
 export default ProblemService;

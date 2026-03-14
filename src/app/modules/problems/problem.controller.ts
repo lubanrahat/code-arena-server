@@ -30,6 +30,18 @@ class ProblemController {
       HttpStatus.OK,
     );
   });
+  public getProblemById = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const problemService = new ProblemService();
+    const result = await problemService.getProblemById(id as string);
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "Problem fetched successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default ProblemController;

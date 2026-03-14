@@ -23,5 +23,7 @@ export default function registerProblemRoutes(): Router {
 
   router.get("/", problemController.getAllProblems.bind(problemController));
 
+  router.get("/:id", problemController.getProblemById.bind(problemController));
+
   return router;
 }
