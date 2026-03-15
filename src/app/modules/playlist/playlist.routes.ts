@@ -28,5 +28,11 @@ export default function registerPlaylistRoutes(): Router {
     playlistController.getPlayListDetails.bind(playlistController),
   );
 
+  router.post(
+    "/:id/add-problem",
+    authenticate,
+    playlistController.addProblemToPlaylist.bind(playlistController),
+  );
+
   return router;
 }

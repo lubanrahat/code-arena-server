@@ -19,29 +19,54 @@ class PlaylistController {
       HttpStatus.CREATED,
     );
   });
-  public getPlayAllListDetails = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
-    const playlistService = new PlaylistService();
-    const result = await playlistService.getPlayAllListDetails(userId);
-    return ResponseUtil.success(
-      res,
-      result,
-      "Playlists fetched successfully",
-      HttpStatus.OK,
-    );
-  });
-  public getPlayListDetails = catchAsync(async (req: Request, res: Response) => {
-    const playlistId = req.params.id;
-    const userId = req.user.id;
-    const playlistService = new PlaylistService();
-    const result = await playlistService.getPlayListDetails(playlistId as string, userId);
-    return ResponseUtil.success(
-      res,
-      result,
-      "Playlist fetched successfully",
-      HttpStatus.OK,
-    );
-  });
+  public getPlayAllListDetails = catchAsync(
+    async (req: Request, res: Response) => {
+      const userId = req.user.id;
+      const playlistService = new PlaylistService();
+      const result = await playlistService.getPlayAllListDetails(userId);
+      return ResponseUtil.success(
+        res,
+        result,
+        "Playlists fetched successfully",
+        HttpStatus.OK,
+      );
+    },
+  );
+  public getPlayListDetails = catchAsync(
+    async (req: Request, res: Response) => {
+      const playlistId = req.params.id;
+      const userId = req.user.id;
+      const playlistService = new PlaylistService();
+      const result = await playlistService.getPlayListDetails(
+        playlistId as string,
+        userId,
+      );
+      return ResponseUtil.success(
+        res,
+        result,
+        "Playlist fetched successfully",
+        HttpStatus.OK,
+      );
+    },
+  );
+
+  public addProblemToPlaylist = catchAsync(
+    async (req: Request, res: Response) => {
+      const playlistId = req.params.id;
+      const problemsId = req.body.problemsId;
+      const playlistService = new PlaylistService();
+      const result = await playlistService.addProblemToPlaylist(
+        playlistId as string,
+        problemsId as string[],
+      );
+      return ResponseUtil.success(
+        res,
+        result,
+        "Problem added to playlist successfully",
+        HttpStatus.OK,
+      );
+    },
+  );
 }
 
 export default PlaylistController;

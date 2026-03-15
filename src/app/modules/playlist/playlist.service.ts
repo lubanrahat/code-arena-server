@@ -62,6 +62,24 @@ class PlaylistService {
 
     return playlist;
   };
+  public addProblemToPlaylist = async (playlistId: string, problemsId: string[]) => {
+    if(!Array.isArray(problemsId) || problemsId.length === 0) {
+      throw new AppError(
+        "Problem ID is required",
+        HttpStatus.BAD_REQUEST,
+        ErrorCodes.BAD_REQUEST,
+      );
+    }
+    
+    const problemsInPlaylist = await prisma.problemInPlaylist.createMany({
+      data: problemsId.map((problemId) => ({
+        playListId: playlistId,
+        problemId,
+      })),
+    });
+
+    return problemsInPlaylist;
+  };
 }
 
 export default PlaylistService;
