@@ -77,6 +77,23 @@ class PlaylistController {
       HttpStatus.OK,
     );
   });
+  public removeProblemFromPlaylist = catchAsync(
+    async (req: Request, res: Response) => {
+      const playlistId = req.params.id;
+      const problemsId = req.body.problemsId;
+      const playlistService = new PlaylistService();
+      const result = await playlistService.removeProblemFromPlaylist(
+        playlistId as string,
+        problemsId as string,
+      );
+      return ResponseUtil.success(
+        res,
+        result,
+        "Problem removed from playlist successfully",
+        HttpStatus.OK,
+      );
+    },
+  );
 }
 
 export default PlaylistController;

@@ -100,6 +100,25 @@ class PlaylistService {
     });
     return playlist;
   }
+  public removeProblemFromPlaylist = async (playlistId: string, problemId: string) => {
+    if(!Array.isArray(problemId) || problemId.length === 0) {
+      throw new AppError(
+        "Problem ID is required",
+        HttpStatus.BAD_REQUEST,
+        ErrorCodes.BAD_REQUEST,
+      );
+    }
+    const deletedProblem = await prisma.problemInPlaylist.deleteMany({
+      where: {
+        playListId: playlistId,
+        problemId: {
+          in: problemId,
+        },
+      },
+    });
+
+    return deletedProblem;
+  }
 }
 
 export default PlaylistService;

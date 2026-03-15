@@ -38,6 +38,11 @@ export default function registerPlaylistRoutes(): Router {
     authenticate,
     playlistController.deletePlayList.bind(playlistController),
   );
+  router.delete(
+    "/:id/remove-problem",
+    authenticate,
+    playlistController.removeProblemFromPlaylist.bind(playlistController),
+  );
 
   return router;
 }
