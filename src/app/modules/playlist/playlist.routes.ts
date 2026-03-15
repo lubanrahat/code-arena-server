@@ -22,5 +22,11 @@ export default function registerPlaylistRoutes(): Router {
     playlistController.getPlayAllListDetails.bind(playlistController),
   );
 
+  router.get(
+    "/:id",
+    authenticate,
+    playlistController.getPlayListDetails.bind(playlistController),
+  );
+
   return router;
 }
