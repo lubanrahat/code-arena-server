@@ -154,6 +154,25 @@ class ProblemService {
     }
     return problem;
   };
+  public getAllProblemSolveByUser = async (userId: string) => {
+    const problems = await prisma.problem.findMany({
+      where: {
+        solvedBy: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+      include: {
+        solvedBy: {
+          where: {
+            userId: userId,
+          }
+        }
+      }
+    });
+    return problems;
+  };
 }
 
 export default ProblemService;

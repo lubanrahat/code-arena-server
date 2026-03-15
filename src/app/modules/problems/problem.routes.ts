@@ -32,5 +32,7 @@ export default function registerProblemRoutes(): Router {
     problemController.deleteProblem.bind(problemController),
   );
 
+  router.get("/get-all-problem-solve-by-user", authenticate, problemController.getAllProblemSolveByUser.bind(problemController));
+
   return router;
 }

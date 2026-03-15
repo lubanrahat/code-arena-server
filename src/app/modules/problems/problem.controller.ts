@@ -54,6 +54,17 @@ class ProblemController {
       HttpStatus.OK,
     );
   });
+  public getAllProblemSolveByUser = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const problemService = new ProblemService();
+    const result = await problemService.getAllProblemSolveByUser(userId);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Problems fetched successfully",
+      HttpStatus.OK,
+    );
+  }); 
 }
 
 export default ProblemController;
