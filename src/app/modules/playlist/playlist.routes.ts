@@ -16,5 +16,11 @@ export default function registerPlaylistRoutes(): Router {
     playlistController.createPlayList.bind(playlistController),
   );
 
+  router.get(
+    "/",
+    authenticate,
+    playlistController.getPlayAllListDetails.bind(playlistController),
+  );
+
   return router;
 }

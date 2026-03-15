@@ -18,6 +18,22 @@ class PlaylistService {
 
     return playlist;
   };
+  public getPlayAllListDetails = async (userId: string) => {
+    const playlists = await prisma.playlist.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        problems: {
+          include: {
+            problem: true,
+          },
+        },
+      },
+    });
+
+    return playlists;
+  };
 }
 
 export default PlaylistService;

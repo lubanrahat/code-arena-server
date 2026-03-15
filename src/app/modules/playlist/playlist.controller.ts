@@ -19,6 +19,17 @@ class PlaylistController {
       HttpStatus.CREATED,
     );
   });
+  public getPlayAllListDetails = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const playlistService = new PlaylistService();
+    const result = await playlistService.getPlayAllListDetails(userId);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Playlists fetched successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default PlaylistController;
