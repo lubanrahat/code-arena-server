@@ -80,6 +80,26 @@ class PlaylistService {
 
     return problemsInPlaylist;
   };
+  public deletePlayList = async (playlistId: string) => {
+    const existingPlaylist = await prisma.playlist.findUnique({
+      where: {
+        id: playlistId,
+      },
+    });
+    if (!existingPlaylist) {
+      throw new AppError(
+        "Playlist not found",
+        HttpStatus.NOT_FOUND,
+        ErrorCodes.NOT_FOUND,
+      );
+    }   
+    const playlist = await prisma.playlist.delete({
+      where: {
+        id: playlistId,
+      },
+    });
+    return playlist;
+  }
 }
 
 export default PlaylistService;

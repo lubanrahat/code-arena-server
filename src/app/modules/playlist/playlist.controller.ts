@@ -49,7 +49,6 @@ class PlaylistController {
       );
     },
   );
-
   public addProblemToPlaylist = catchAsync(
     async (req: Request, res: Response) => {
       const playlistId = req.params.id;
@@ -67,6 +66,17 @@ class PlaylistController {
       );
     },
   );
+  public deletePlayList = catchAsync(async (req: Request, res: Response) => {
+    const playlistId = req.params.id;
+    const playlistService = new PlaylistService();
+    const result = await playlistService.deletePlayList(playlistId as string);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Playlist deleted successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default PlaylistController;
