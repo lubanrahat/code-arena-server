@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import { catchAsync } from "../../shared/utils/async-handler.util";
 import ProblemService from "./problem.service";
+import { Difficulty } from "../../../../generated/prisma/client";
+import type { ProblemCreateInput } from "./problem.validation";
+import type {
+  IProblemFilterRequest,
+  IPaginationOptions,
+} from "./problem.interface";
 import { ResponseUtil } from "../../shared/utils/response.util";
 import HttpStatus from "../../shared/constants/http-status";
 
@@ -20,14 +26,48 @@ class ProblemController {
     );
   });
   public getAllProblems = catchAsync(async (req: Request, res: Response) => {
-    const problemService = new ProblemService();
-    const result = await problemService.getAllProblems();
+    const {
+      search,
+      difficulty,
+      topic,
+      askedIn,
+      status,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    } = req.query;
+    const userId = req.user?.id;
 
-    return ResponseUtil.success(
+    const filters: IProblemFilterRequest = {
+      search: search as string,
+      difficulty: difficulty as any,
+      topic: topic as string,
+      askedIn: askedIn as string,
+      status: status as any,
+    };
+
+    const paginationOptions: IPaginationOptions = {
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      sortBy: sortBy as string,
+      sortOrder: sortOrder as any,
+    };
+
+    const problemService = new ProblemService();
+    const result = await problemService.getAllProblems(
+      filters,
+      paginationOptions,
+      userId,
+    );
+
+    return ResponseUtil.paginated(
       res,
-      result,
+      result.data,
+      result.meta.page,
+      result.meta.limit,
+      result.meta.total,
       "Problems fetched successfully",
-      HttpStatus.OK,
     );
   });
   public getProblemById = catchAsync(async (req: Request, res: Response) => {
@@ -54,17 +94,19 @@ class ProblemController {
       HttpStatus.OK,
     );
   });
-  public getAllProblemSolveByUser = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
-    const problemService = new ProblemService();
-    const result = await problemService.getAllProblemSolveByUser(userId);
-    return ResponseUtil.success(
-      res,
-      result,
-      "Problems fetched successfully",
-      HttpStatus.OK,
-    );
-  }); 
+  public getAllProblemSolveByUser = catchAsync(
+    async (req: Request, res: Response) => {
+      const userId = req.user.id;
+      const problemService = new ProblemService();
+      const result = await problemService.getAllProblemSolveByUser(userId);
+      return ResponseUtil.success(
+        res,
+        result,
+        "Problems fetched successfully",
+        HttpStatus.OK,
+      );
+    },
+  );
 }
 
 export default ProblemController;

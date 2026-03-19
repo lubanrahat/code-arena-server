@@ -9,10 +9,16 @@ import prisma from "../../lib/prisma";
 import HttpStatus from "../../shared/constants/http-status";
 import AppError from "../../shared/errors/app-error";
 import { logger } from "../../shared/logger/logger";
-import type { SubmissionCreateInput } from "./executeCode.validation";
+import type {
+  SubmissionCreateInput,
+  RunCodeInput,
+} from "./executeCode.validation";
 
 class ExecuteCodeService {
-  public executeCode = async (payload: SubmissionCreateInput, userId: string) => {
+  public executeCode = async (
+    payload: SubmissionCreateInput,
+    userId: string,
+  ) => {
     const { sourceCode, language, stdin, expected_outputs, problemId } =
       payload;
 
@@ -22,31 +28,29 @@ class ExecuteCodeService {
       !Array.isArray(expected_outputs) ||
       expected_outputs.length !== stdin.length
     ) {
-      throw new AppError("Invalid or Missing test cases", HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        "Invalid or Missing test cases",
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    // 1. Derive language_id
     const language_id = getJudgeOLanguageId(language);
     const source_code = sourceCode;
 
-    // 2. Prepare each test case for judge0 batch submission
     const submissions = stdin.map((input) => ({
       source_code,
       language_id,
       stdin: input,
     }));
 
-    // 3. Send batch of submissions to judge0
     const submitResponse = await submitToJudge0(submissions);
 
-    // Handle different response formats (array vs { submissions: [...] })
     const tokenList = Array.isArray(submitResponse)
       ? submitResponse
       : submitResponse?.submissions || [];
 
     const tokens = tokenList.map((res: Judge0Submission) => res.token);
 
-    // 4. Poll judge0 for results of all submitted test cases
     const results = await poolBatchResult(tokens);
 
     console.log("Result-------------");
@@ -76,7 +80,6 @@ class ExecuteCodeService {
 
     logger.info(detailedResults);
 
-    // 6. Store submission summary
     const submission = await prisma.submission.create({
       data: {
         userId,
@@ -101,7 +104,6 @@ class ExecuteCodeService {
       },
     });
 
-    // 7. If all passed, mark problem as solved for the current user
     if (allPassed) {
       await prisma.problemSolved.upsert({
         where: {
@@ -118,7 +120,7 @@ class ExecuteCodeService {
       });
     }
 
-    // 8. Save individual test case results using detailedResults
+  
     const testCaseResults = detailedResults.map((result) => ({
       submissionId: submission.id,
       testCase: result.testCase,
@@ -146,6 +148,60 @@ class ExecuteCodeService {
     });
 
     return submissionWithTestCase;
+  };
+
+  public runCode = async (payload: RunCodeInput) => {
+    const { sourceCode, language, stdin, expectedOutput } = payload;
+
+    const language_id = getJudgeOLanguageId(language);
+
+    const submissions = [
+      {
+        source_code: sourceCode,
+        language_id,
+        stdin: stdin || "",
+      },
+    ];
+
+    const submitResponse = await submitToJudge0(submissions);
+
+    const tokenList = Array.isArray(submitResponse)
+      ? submitResponse
+      : submitResponse?.submissions || [];
+
+    const tokens = tokenList.map((res: Judge0Submission) => res.token);
+
+    const results = await poolBatchResult(tokens);
+    const result = results[0];
+
+    if (!result) {
+      throw new AppError(
+        "No result received from judge",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    logger.info("Run code result:", result);
+
+    const stdout = result.stdout || null;
+    let status = result.status?.description || "Unknown";
+
+    if (status === "Accepted" && expectedOutput !== undefined) {
+      const actualOutput = (stdout || "").trim();
+      const targetOutput = expectedOutput.trim();
+      if (actualOutput !== targetOutput) {
+        status = "Wrong Answer";
+      }
+    }
+
+    return {
+      stdout,
+      stderr: result.stderr || null,
+      compile_output: result.compile_output || null,
+      status,
+      memory: result.memory ? `${result.memory} KB` : null,
+      time: result.time ? `${result.time} s` : null,
+    };
   };
 }
 

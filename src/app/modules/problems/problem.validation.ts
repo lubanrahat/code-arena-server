@@ -49,6 +49,10 @@ export const problemCreateSchema = z.preprocess(
     .array(z.string().min(1).max(30).trim())
     .min(1, "At least one tag is required")
     .max(10, "Cannot have more than 10 tags"),
+  
+  topic: z.string().min(1).max(100).trim().optional(),
+
+  askedIn: z.array(z.string().min(1).max(100).trim()).optional(),
 
   examples: z
     .array(

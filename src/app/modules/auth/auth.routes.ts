@@ -2,6 +2,7 @@ import express, { type Router } from "express";
 import AuthController from "./auth.controller";
 import { validateRequest } from "../../shared/middlewares/validate.middleware";
 import { authLoginSchema, authRegisterSchema } from "./auth.validation";
+import { authenticate } from "../../shared/middlewares/auth.middleware";
 
 export default function registerAuthRoutes(): Router {
   const router: Router = express.Router();
@@ -18,6 +19,8 @@ export default function registerAuthRoutes(): Router {
     validateRequest({ body: authLoginSchema }),
     authController.loginUser.bind(authController),
   );
+
+  router.get("/check", authenticate, authController.check);
 
   return router;
 }

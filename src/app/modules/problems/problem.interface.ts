@@ -23,4 +23,29 @@ export interface IProblemCreate {
   testCases: JSON;
   codeSnippets: JSON;
   referenceSolutions: string;
+  topic?: string;
+  askedIn?: string[];
+}
+
+export interface IProblemFilterRequest {
+  search?: string;
+  difficulty?: Difficulty;
+  topic?: string;
+  askedIn?: string;
+  status?: "SOLVED" | "UNSOLVED" | "ATTEMPTED";
+  sortBy?:
+    | "recentlyAdded"
+    | "difficulty_asc"
+    | "difficulty_desc"
+    | "title_asc"
+    | "title_desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface IPaginationOptions {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }

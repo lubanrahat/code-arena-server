@@ -51,7 +51,8 @@ class AuthService {
         userName: userName,
         email,
         password: hashedPassword,
-        imageUrl: "https://res.cloudinary.com/dq4n6leek/image/upload/v1773448701/714_gbrhms.jpg"
+        imageUrl:
+          "https://res.cloudinary.com/dq4n6leek/image/upload/v1773448701/714_gbrhms.jpg",
       },
     });
 

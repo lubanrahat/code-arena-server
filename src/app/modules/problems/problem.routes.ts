@@ -3,6 +3,7 @@ import ProblemController from "./problem.controller";
 import {
   authenticate,
   authorize,
+  optionalAuthenticate,
 } from "../../shared/middlewares/auth.middleware";
 import { Role } from "../../../../generated/prisma/enums";
 import { validateRequest } from "../../shared/middlewares/validate.middleware";
@@ -21,7 +22,7 @@ export default function registerProblemRoutes(): Router {
     problemController.createProblem.bind(problemController),
   );
 
-  router.get("/", problemController.getAllProblems.bind(problemController));
+  router.get("/", optionalAuthenticate, problemController.getAllProblems.bind(problemController));
 
   router.get("/:id", problemController.getProblemById.bind(problemController));
 
@@ -32,7 +33,7 @@ export default function registerProblemRoutes(): Router {
     problemController.deleteProblem.bind(problemController),
   );
 
-  router.get("/get-all-problem-solve-by-user", authenticate, problemController.getAllProblemSolveByUser.bind(problemController));
+  router.get("/get-solved-problem", authenticate, problemController.getAllProblemSolveByUser.bind(problemController));
 
   return router;
 }

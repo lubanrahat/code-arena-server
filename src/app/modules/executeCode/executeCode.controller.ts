@@ -19,6 +19,20 @@ class ExecuteCodeController {
       HttpStatus.OK,
     );
   });
+
+  public runCode = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body;
+
+    const executeCodeService = new ExecuteCodeService();
+    const result = await executeCodeService.runCode(payload);
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "Code ran successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default ExecuteCodeController;

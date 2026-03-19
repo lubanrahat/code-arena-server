@@ -9,7 +9,37 @@ import HttpStatus from "../../shared/constants/http-status";
 import AppError from "../../shared/errors/app-error";
 import ErrorCodes from "../../shared/errors/error-codes";
 import { logger } from "../../shared/logger/logger";
+import { Difficulty } from "../../../../generated/prisma/client";
 import type { ProblemCreateInput } from "./problem.validation";
+import type {
+  IProblemFilterRequest,
+  IPaginationOptions,
+} from "./problem.interface";
+
+type WhereClause = {
+  OR?: any[];
+  difficulty?: Difficulty;
+  topic?: string;
+  askedIn?: {
+    hasSome: string[];
+  };
+  solvedBy?:
+    | {
+        some: {
+          userId: string;
+        };
+      }
+    | {
+        none: {
+          userId: string;
+        };
+      };
+  submissions?: {
+    some?: {
+      userId: string;
+    };
+  };
+};
 
 class ProblemService {
   public createProblem = async (
@@ -28,6 +58,8 @@ class ProblemService {
       testCases,
       codeSnippets,
       referenceSolutions,
+      topic,
+      askedIn,
     } = payload;
 
     // Validate reference solutions and prepare submissions
@@ -106,22 +138,110 @@ class ProblemService {
         testCases,
         referenceSolutions,
         codeSnippets,
+        topic,
+        askedIn,
         userId,
       },
     });
 
     return newProblem;
   };
-  public getAllProblems = async () => {
-    const problems = await prisma.problem.findMany();
-    if (!problems) {
-      throw new AppError(
-        "No problems found",
-        HttpStatus.NOT_FOUND,
-        ErrorCodes.NOT_FOUND,
-      );
+  public getAllProblems = async (
+    filters: IProblemFilterRequest,
+    paginationOptions: IPaginationOptions,
+    userId?: string,
+  ) => {
+    const { search, difficulty, topic, askedIn, status } = filters;
+    const { page = 1, limit = 10, sortBy, sortOrder } = paginationOptions;
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const where: WhereClause = {};
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { tags: { has: search } },
+      ];
     }
-    return problems;
+
+    if (difficulty) {
+      where.difficulty = difficulty;
+    }
+
+    if (topic) {
+      where.topic = topic;
+    }
+
+    if (askedIn) {
+      where.askedIn = {
+        hasSome: [askedIn],
+      };
+    }
+
+    if (status && userId) {
+      if (status === "SOLVED") {
+        where.solvedBy = {
+          some: {
+            userId: userId,
+          },
+        };
+      } else if (status === "UNSOLVED") {
+        where.solvedBy = {
+          none: {
+            userId: userId,
+          },
+        };
+      } else if (status === "ATTEMPTED") {
+        where.submissions = {
+          some: {
+            userId: userId,
+          },
+        };
+      }
+    }
+
+    const orderBy: any = {};
+    if (sortBy) {
+      orderBy[sortBy] = sortOrder || "asc";
+    } else {
+      orderBy.createdAt = "desc";
+    }
+
+    const [problems, total] = await Promise.all([
+      prisma.problem.findMany({
+        where,
+        skip,
+        take,
+        orderBy,
+        include: {
+          solvedBy: userId
+            ? {
+                where: {
+                  userId: userId,
+                },
+              }
+            : false,
+          _count: {
+            select: {
+              submissions: true,
+            },
+          },
+        },
+      }),
+      prisma.problem.count({ where }),
+    ]);
+
+    return {
+      meta: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+      },
+      data: problems,
+    };
   };
   public getProblemById = async (id: string) => {
     const problem = await prisma.problem.findUnique({
@@ -167,9 +287,9 @@ class ProblemService {
         solvedBy: {
           where: {
             userId: userId,
-          }
-        }
-      }
+          },
+        },
+      },
     });
     return problems;
   };
