@@ -10,7 +10,7 @@ import AppError from "../../shared/errors/app-error";
 import ErrorCodes from "../../shared/errors/error-codes";
 import { logger } from "../../shared/logger/logger";
 import { Difficulty } from "../../../../generated/prisma/client";
-import type { ProblemCreateInput } from "./problem.validation";
+import type { ProblemCreateInput, ProblemUpdateInput } from "./problem.validation";
 import type {
   IProblemFilterRequest,
   IPaginationOptions,
@@ -60,6 +60,7 @@ class ProblemService {
       referenceSolutions,
       topic,
       askedIn,
+      videoUrl,
     } = payload;
 
     // Validate reference solutions and prepare submissions
@@ -140,6 +141,7 @@ class ProblemService {
         codeSnippets,
         topic,
         askedIn,
+        videoUrl,
         userId,
       },
     });
@@ -258,7 +260,25 @@ class ProblemService {
     }
     return problem;
   };
-  // public updateProblem = async (id: string, payload: any) => {};
+  public updateProblem = async (id: string, payload: ProblemUpdateInput) => {
+    const problem = await prisma.problem.update({
+      where: {
+        id,
+      },
+      data: payload,
+    });
+
+    if (!problem) {
+      throw new AppError(
+        "Problem not found",
+        HttpStatus.NOT_FOUND,
+        ErrorCodes.NOT_FOUND,
+      );
+    }
+
+    return problem;
+  };
+
   public deleteProblem = async (id: string) => {
     const problem = await prisma.problem.delete({
       where: {

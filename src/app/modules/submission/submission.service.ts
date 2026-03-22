@@ -6,10 +6,22 @@ class SubmissionService {
       where: {
         userId: userId,
       },
+      include: {
+        problem: {
+          select: {
+            title: true,
+            difficulty: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return submission;
   };
+
   public getSubmissionsForProblem = async (userId: string,problemId:string) => {
     const submission = await prisma.submission.findMany({
       where: {

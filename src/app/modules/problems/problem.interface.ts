@@ -20,7 +20,9 @@ export interface IProblemCreate {
   constraints: string;
   hints?: string;
   editorial: string;
+  videoUrl?: string;
   testCases: JSON;
+
   codeSnippets: JSON;
   referenceSolutions: string;
   topic?: string;

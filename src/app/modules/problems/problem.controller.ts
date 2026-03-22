@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { catchAsync } from "../../shared/utils/async-handler.util";
 import ProblemService from "./problem.service";
 import { Difficulty } from "../../../../generated/prisma/client";
-import type { ProblemCreateInput } from "./problem.validation";
+import type { ProblemCreateInput, ProblemUpdateInput } from "./problem.validation";
+
 import type {
   IProblemFilterRequest,
   IPaginationOptions,
@@ -82,7 +83,23 @@ class ProblemController {
       HttpStatus.OK,
     );
   });
+  public updateProblem = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params.id;
+    const payload = req.body;
+
+    const problemService = new ProblemService();
+    const result = await problemService.updateProblem(id as string, payload);
+
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "Problem updated successfully",
+      HttpStatus.OK,
+    );
+  });
   public deleteProblem = catchAsync(async (req: Request, res: Response) => {
+
     const id = req.params.id;
     const problemService = new ProblemService();
     const result = await problemService.deleteProblem(id as string);

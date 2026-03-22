@@ -13,22 +13,7 @@ export enum Language {
   GO = "GO",
 }
 
-// Reusable language enum derived directly from the TypeScript enum
-const languageEnum = z.enum(Object.values(Language) as [string, ...string[]], {
-  error: "Unsupported language",
-});
-
-export const problemCreateSchema = z.preprocess(
-  (data: any) => {
-    // Accept "example" (singular object) and convert to "examples" (array)
-    if (data && !data.examples && data.example) {
-      const example = data.example;
-      data.examples = Array.isArray(example) ? example : [example];
-      delete data.example;
-    }
-    return data;
-  },
-  z.object({
+const problemBaseObject = z.object({
   title: z
     .string()
     .min(3, "Title must be at least 3 characters")
@@ -76,9 +61,11 @@ export const problemCreateSchema = z.preprocess(
 
   editorial: z
     .string()
-    .min(10, "Editorial must be at least 10 characters")
     .max(20000, "Editorial must not exceed 20,000 characters")
-    .trim(),
+    .trim()
+    .optional(),
+
+  videoUrl: z.string().url("Invalid video URL").optional(),
 
   testCases: z
     .array(
@@ -102,7 +89,22 @@ export const problemCreateSchema = z.preprocess(
     z.string(),
     z.string().min(1, "Reference solution cannot be empty"),
   ),
-  }),
+});
+
+export const problemCreateSchema = z.preprocess(
+  (data: any) => {
+    // Accept "example" (singular object) and convert to "examples" (array)
+    if (data && !data.examples && data.example) {
+      const example = data.example;
+      data.examples = Array.isArray(example) ? example : [example];
+      delete data.example;
+    }
+    return data;
+  },
+  problemBaseObject,
 );
 
+export const problemUpdateSchema = problemBaseObject.partial();
+
 export type ProblemCreateInput = z.infer<typeof problemCreateSchema>;
+export type ProblemUpdateInput = z.infer<typeof problemUpdateSchema>;

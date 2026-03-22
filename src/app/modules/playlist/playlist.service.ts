@@ -62,15 +62,18 @@ class PlaylistService {
 
     return playlist;
   };
-  public addProblemToPlaylist = async (playlistId: string, problemsId: string[]) => {
-    if(!Array.isArray(problemsId) || problemsId.length === 0) {
+  public addProblemToPlaylist = async (
+    playlistId: string,
+    problemsId: string[],
+  ) => {
+    if (!Array.isArray(problemsId) || problemsId.length === 0) {
       throw new AppError(
         "Problem ID is required",
         HttpStatus.BAD_REQUEST,
         ErrorCodes.BAD_REQUEST,
       );
     }
-    
+
     const problemsInPlaylist = await prisma.problemInPlaylist.createMany({
       data: problemsId.map((problemId) => ({
         playListId: playlistId,
@@ -92,16 +95,19 @@ class PlaylistService {
         HttpStatus.NOT_FOUND,
         ErrorCodes.NOT_FOUND,
       );
-    }   
+    }
     const playlist = await prisma.playlist.delete({
       where: {
         id: playlistId,
       },
     });
     return playlist;
-  }
-  public removeProblemFromPlaylist = async (playlistId: string, problemId: string) => {
-    if(!Array.isArray(problemId) || problemId.length === 0) {
+  };
+  public removeProblemFromPlaylist = async (
+    playlistId: string,
+    problemId: string,
+  ) => {
+    if (!Array.isArray(problemId) || problemId.length === 0) {
       throw new AppError(
         "Problem ID is required",
         HttpStatus.BAD_REQUEST,
@@ -118,7 +124,7 @@ class PlaylistService {
     });
 
     return deletedProblem;
-  }
+  };
 }
 
 export default PlaylistService;

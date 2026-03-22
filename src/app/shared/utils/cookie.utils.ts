@@ -5,7 +5,7 @@ export type CookieKey = "token";
 export class CookieService {
   private static defaultOptions: CookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
   };

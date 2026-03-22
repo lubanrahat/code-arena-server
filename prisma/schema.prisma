@@ -22,10 +22,13 @@ model User {
   role      Role    @default(USER)
   imageUrl  String?
 
+  profile       Profile?
+
   problems      Problem[]
   submissions   Submission[]
   problemSolved ProblemSolved[]
   playlists     Playlist[]
+  aiDiscussions AiDiscussion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,6 +51,7 @@ model Problem {
   constraints String
   hints       String[]
   editorial   String?
+  videoUrl    String?
 
   testCases          Json
   codeSnippets       Json
@@ -60,6 +64,7 @@ model Problem {
   submissions       Submission[]
   solvedBy          ProblemSolved[]
   problemsPlaylists ProblemInPlaylist[]
+  aiDiscussions     AiDiscussion[]
 
   @@index([difficulty])
   @@map("problems")
@@ -168,4 +173,40 @@ enum Difficulty {
   EASY
   MEDIUM
   HARD
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  location    String?
+  institution String?
+  website     String?
+  github      String?
+  linkedin    String?
+  twitter     String?
+  score       Int      @default(0)
+  coins       Int      @default(0)
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model AiDiscussion {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  messages  Json     // Array of { role: 'user' | 'model', content: string }
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, problemId])
+  @@map("ai_discussions")
 }

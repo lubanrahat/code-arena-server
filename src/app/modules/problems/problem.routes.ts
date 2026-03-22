@@ -7,7 +7,7 @@ import {
 } from "../../shared/middlewares/auth.middleware";
 import { Role } from "../../../../generated/prisma/enums";
 import { validateRequest } from "../../shared/middlewares/validate.middleware";
-import { problemCreateSchema } from "./problem.validation";
+import { problemCreateSchema, problemUpdateSchema } from "./problem.validation";
 
 export default function registerProblemRoutes(): Router {
   const router = express.Router();
@@ -22,7 +22,16 @@ export default function registerProblemRoutes(): Router {
     problemController.createProblem.bind(problemController),
   );
 
+  router.patch(
+    "/:id",
+    authenticate,
+    authorize(Role.ADMIN),
+    validateRequest({ body: problemUpdateSchema }),
+    problemController.updateProblem.bind(problemController),
+  );
+
   router.get("/", optionalAuthenticate, problemController.getAllProblems.bind(problemController));
+
 
   router.get("/:id", problemController.getProblemById.bind(problemController));
 
