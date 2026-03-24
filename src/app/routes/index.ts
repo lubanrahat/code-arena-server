@@ -7,6 +7,7 @@ import registerSubmissionRoutes from "../modules/submission/submission.routes";
 import registerPlaylistRoutes from "../modules/playlist/playlist.routes";
 import registerUserRoutes from "../modules/user/user.routes";
 import registerAiDiscussionRoutes from "../modules/ai-discussion/ai-discussion.route";
+import registerAdminRoutes from "../modules/admin/admin.routes";
 
 export const registerIndexRoutes = (): Router => {
   const router: Router = Router();
@@ -16,9 +17,10 @@ export const registerIndexRoutes = (): Router => {
   router.use("/problems", registerProblemRoutes());
   router.use("/execute-code", registerExecuteCodeRoutes());
   router.use("/submission", registerSubmissionRoutes());
-  router.use("/playlist", registerPlaylistRoutes());  
+  router.use("/playlist", registerPlaylistRoutes());
   router.use("/user", registerUserRoutes());
   router.use("/ai-discussion", registerAiDiscussionRoutes());
+  router.use("/admin", registerAdminRoutes());
 
   return router;
 };

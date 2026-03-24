@@ -109,18 +109,21 @@ class ProblemService {
         logger.info("Result:", result);
 
         if (result && result.status.id !== 3) {
-          logger.error({
-            error: `Failed to verify solution for ${language}`,
-            testCaseIndex: submissions[i]?.stdin,
+          const errorDetails = {
+            language,
+            testCase: i + 1,
+            stdin: submissions[i]?.stdin,
             expectedOutput: submissions[i]?.expected_output,
             actualOutput: result.stdout,
             compileError: result.compile_output,
             runtimeError: result.stderr,
-          });
+            statusDescription: result.status.description,
+          };
+          logger.error({ error: `Reference solution failed verification for ${language}`, ...errorDetails });
           throw new AppError(
-            "Failed to verify solution",
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ErrorCodes.INTERNAL_ERROR,
+            `Reference solution for ${language} failed on test case ${i + 1}: status "${result.status.description}". Check your reference solution and test cases are correct.`,
+            HttpStatus.BAD_REQUEST,
+            ErrorCodes.INVALID_INPUT,
           );
         }
       }

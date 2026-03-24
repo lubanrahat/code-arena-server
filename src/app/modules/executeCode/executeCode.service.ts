@@ -15,6 +15,29 @@ import type {
 } from "./executeCode.validation";
 
 class ExecuteCodeService {
+  private _wrapCode = async (
+    sourceCode: string,
+    language: string,
+    problemId?: string | null,
+  ) => {
+    if (!problemId) return sourceCode;
+
+    const problem = await prisma.problem.findUnique({
+      where: { id: problemId },
+    });
+
+    if (!problem || !problem.codeSnippets) return sourceCode;
+
+    const snippets = problem.codeSnippets as any;
+    const langSnippet = snippets[language];
+
+    if (langSnippet && langSnippet.boilerplate) {
+      return langSnippet.boilerplate.replace("{{USER_CODE}}", sourceCode);
+    }
+
+    return sourceCode;
+  };
+// ... rest of the class ...
   public executeCode = async (
     payload: SubmissionCreateInput,
     userId: string,
@@ -35,7 +58,7 @@ class ExecuteCodeService {
     }
 
     const language_id = getJudgeOLanguageId(language);
-    const source_code = sourceCode;
+    const source_code = await this._wrapCode(sourceCode, language, problemId);
 
     const submissions = stdin.map((input) => ({
       source_code,
@@ -120,7 +143,6 @@ class ExecuteCodeService {
       });
     }
 
-  
     const testCaseResults = detailedResults.map((result) => ({
       submissionId: submission.id,
       testCase: result.testCase,
@@ -151,13 +173,14 @@ class ExecuteCodeService {
   };
 
   public runCode = async (payload: RunCodeInput) => {
-    const { sourceCode, language, stdin, expectedOutput } = payload;
+    const { sourceCode, language, stdin, expectedOutput, problemId } = payload;
 
     const language_id = getJudgeOLanguageId(language);
+    const source_code = await this._wrapCode(sourceCode, language, problemId);
 
     const submissions = [
       {
-        source_code: sourceCode,
+        source_code,
         language_id,
         stdin: stdin || "",
       },

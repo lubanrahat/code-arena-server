@@ -23,8 +23,8 @@ export const runCodeSchema = z.object({
     error: "Unsupported language",
   }),
 
+  problemId: z.string().uuid("problemId must be a valid UUID").optional(),
   stdin: z.string().optional().default(""),
-
   expectedOutput: z.string().optional(),
 });
 
