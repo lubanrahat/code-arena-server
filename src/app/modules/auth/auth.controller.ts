@@ -43,6 +43,16 @@ class AuthController {
       HttpStatus.OK,
     );
   });
+
+  public logoutUser = catchAsync(async (req: Request, res: Response) => {
+    CookieService.clear(res, "token");
+    ResponseUtil.success(
+      res,
+      null,
+      "User logged out successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default AuthController;

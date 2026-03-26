@@ -65,6 +65,8 @@ const problemBaseObject = z.object({
     .trim()
     .optional(),
 
+  isPremium: z.boolean().default(false).optional(),
+
   videoUrl: z.string().url("Invalid video URL").optional().or(z.literal("")),
 
   testCases: z

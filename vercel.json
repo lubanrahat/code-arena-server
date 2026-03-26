@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "installCommand": "npm install && mv prisma.config.ts _prisma.config.ts.bak && npx prisma generate --schema=./prisma/schema.prisma && mv _prisma.config.ts.bak prisma.config.ts",
+  "buildCommand": "npm run build",
+  "builds": [
+    {
+      "src": "dist/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/server.js"
+    }
+  ]
+}

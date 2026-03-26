@@ -8,6 +8,8 @@ import registerPlaylistRoutes from "../modules/playlist/playlist.routes";
 import registerUserRoutes from "../modules/user/user.routes";
 import registerAiDiscussionRoutes from "../modules/ai-discussion/ai-discussion.route";
 import registerAdminRoutes from "../modules/admin/admin.routes";
+import paymentRoutes from "../modules/payment/payment.routes";
+import registerPaymentRoutes from "../modules/payment/payment.routes";
 
 export const registerIndexRoutes = (): Router => {
   const router: Router = Router();
@@ -21,6 +23,7 @@ export const registerIndexRoutes = (): Router => {
   router.use("/user", registerUserRoutes());
   router.use("/ai-discussion", registerAiDiscussionRoutes());
   router.use("/admin", registerAdminRoutes());
+  router.use("/payment", registerPaymentRoutes());
 
   return router;
 };

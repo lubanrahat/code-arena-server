@@ -61,6 +61,7 @@ class ProblemService {
       topic,
       askedIn,
       videoUrl,
+      isPremium,
     } = payload;
 
     // Validate reference solutions and prepare submissions
@@ -145,6 +146,7 @@ class ProblemService {
         topic,
         askedIn,
         videoUrl,
+        isPremium: isPremium ?? false,
         userId,
       },
     });
@@ -248,7 +250,7 @@ class ProblemService {
       data: problems,
     };
   };
-  public getProblemById = async (id: string) => {
+  public getProblemById = async (id: string, user?: { id: string; isPremium: boolean; role: string }) => {
     const problem = await prisma.problem.findUnique({
       where: {
         id,
@@ -261,6 +263,15 @@ class ProblemService {
         ErrorCodes.NOT_FOUND,
       );
     }
+
+    if (problem.isPremium && (!user || (!user.isPremium && user.role !== "ADMIN"))) {
+        throw new AppError(
+          "Upgrade required to access this premium problem.",
+          HttpStatus.FORBIDDEN,
+          ErrorCodes.UNAUTHORIZED,
+        );
+    }
+
     return problem;
   };
   public updateProblem = async (id: string, payload: ProblemUpdateInput) => {

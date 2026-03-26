@@ -73,8 +73,9 @@ class ProblemController {
   });
   public getProblemById = catchAsync(async (req: Request, res: Response) => {
     const id = req.params.id;
+    const user = req.user; // Might be undefined if the route is entirely public, but typically req.user is set by auth middleware
     const problemService = new ProblemService();
-    const result = await problemService.getProblemById(id as string);
+    const result = await problemService.getProblemById(id as string, user as any);
 
     return ResponseUtil.success(
       res,

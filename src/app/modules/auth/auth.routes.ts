@@ -22,5 +22,7 @@ export default function registerAuthRoutes(): Router {
 
   router.get("/check", authenticate, authController.check);
 
+  router.post("/logout", authenticate, authController.logoutUser);
+
   return router;
 }

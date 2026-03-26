@@ -22,6 +22,12 @@ model User {
   role      Role    @default(USER)
   imageUrl  String?
 
+  isPremium          Boolean   @default(false)
+  stripeCustomerId   String?   @unique
+  subscriptionPlan   String?
+  subscriptionStatus String?
+  currentPeriodEnd   DateTime?
+
   profile       Profile?
 
   problems      Problem[]
@@ -29,6 +35,7 @@ model User {
   problemSolved ProblemSolved[]
   playlists     Playlist[]
   aiDiscussions AiDiscussion[]
+  payments      Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,6 +59,8 @@ model Problem {
   hints       String[]
   editorial   String?
   videoUrl    String?
+
+  isPremium          Boolean   @default(false)
 
   testCases          Json
   codeSnippets       Json
@@ -209,4 +218,24 @@ model AiDiscussion {
 
   @@unique([userId, problemId])
   @@map("ai_discussions")
+}
+
+model Payment {
+  id                   String   @id @default(uuid())
+  userId               String
+  amount               Int      // amount in cents
+  currency             String   @default("usd")
+  plan                 String   // "monthly" | "yearly"
+  status               String   @default("completed") // "completed" | "refunded"
+  stripeSessionId      String?  @unique
+  stripeSubscriptionId String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("payments")
 }
