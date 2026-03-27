@@ -39,6 +39,11 @@ type WhereClause = {
       userId: string;
     };
   };
+  bookmarks?: {
+    some?: {
+      userId: string;
+    };
+  };
 };
 
 class ProblemService {
@@ -175,16 +180,25 @@ class ProblemService {
     }
 
     if (difficulty) {
-      where.difficulty = difficulty;
+      if (Array.isArray(difficulty)) {
+        where.difficulty = { in: difficulty } as any;
+      } else {
+        where.difficulty = difficulty;
+      }
     }
 
     if (topic) {
-      where.topic = topic;
+      if (Array.isArray(topic)) {
+        where.topic = { in: topic } as any;
+      } else {
+        where.topic = topic;
+      }
     }
 
     if (askedIn) {
+      const companies = Array.isArray(askedIn) ? askedIn : [askedIn];
       where.askedIn = {
-        hasSome: [askedIn],
+        hasSome: companies,
       };
     }
 
@@ -207,11 +221,21 @@ class ProblemService {
             userId: userId,
           },
         };
+      } else if (status === "BOOKMARKED") {
+        where.bookmarks = {
+          some: {
+            userId: userId,
+          },
+        };
       }
     }
 
     const orderBy: any = {};
-    if (sortBy) {
+    if (sortBy === "submissions") {
+      orderBy.submissions = {
+        _count: sortOrder || "desc",
+      };
+    } else if (sortBy) {
       orderBy[sortBy] = sortOrder || "asc";
     } else {
       orderBy.createdAt = "desc";
@@ -264,12 +288,29 @@ class ProblemService {
       );
     }
 
-    if (problem.isPremium && (!user || (!user.isPremium && user.role !== "ADMIN"))) {
+    if (problem.isPremium) {
+      let isPremiumUser = user?.isPremium;
+      let userRole = user?.role;
+
+      // If user is logged in but not marked as premium/admin in token, check database for latest status
+      if (user && !isPremiumUser && userRole !== "ADMIN") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { isPremium: true, role: true },
+        });
+        if (dbUser) {
+          isPremiumUser = dbUser.isPremium;
+          userRole = dbUser.role as any;
+        }
+      }
+
+      if (!user || (!isPremiumUser && userRole !== "ADMIN")) {
         throw new AppError(
           "Upgrade required to access this premium problem.",
           HttpStatus.FORBIDDEN,
           ErrorCodes.UNAUTHORIZED,
         );
+      }
     }
 
     return problem;
@@ -326,6 +367,66 @@ class ProblemService {
       },
     });
     return problems;
+  };
+
+  public toggleBookmark = async (userId: string, problemId: string) => {
+    const existing = await prisma.bookmark.findUnique({
+      where: {
+        userId_problemId: {
+          userId,
+          problemId,
+        },
+      },
+    });
+
+    if (existing) {
+      await prisma.bookmark.delete({
+        where: {
+          id: existing.id,
+        },
+      });
+      return { bookmarked: false };
+    } else {
+      await prisma.bookmark.create({
+        data: {
+          userId,
+          problemId,
+        },
+      });
+      return { bookmarked: true };
+    }
+  };
+
+  public getUserProblemStatus = async (userId: string) => {
+    const [solved, attempted, bookmarked] = await Promise.all([
+      prisma.problemSolved.findMany({
+        where: { userId },
+        select: { problemId: true },
+      }),
+      prisma.submission.findMany({
+        where: { userId },
+        distinct: ["problemId"],
+        select: { problemId: true, status: true },
+      }),
+      prisma.bookmark.findMany({
+        where: { userId },
+        select: { problemId: true },
+      }),
+    ]);
+
+    const solvedProblemIds = solved.map(s => s.problemId);
+    
+    // Attempted problems are those that have a submission but are not solved
+    const allSubmissionProblemIds = attempted.map(a => a.problemId);
+    const attemptedProblemIds = allSubmissionProblemIds.filter(id => !solvedProblemIds.includes(id));
+    
+    const bookmarkedProblemIds = bookmarked.map(b => b.problemId);
+
+    return {
+      solvedProblemIds,
+      attemptedProblemIds,
+      bookmarkedProblemIds,
+    };
   };
 }
 

@@ -125,6 +125,35 @@ class ProblemController {
       );
     },
   );
+
+  public toggleBookmark = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const problemId = req.params.id;
+
+    const problemService = new ProblemService();
+    const result = await problemService.toggleBookmark(userId, problemId as string);
+
+    return ResponseUtil.success(
+      res,
+      result,
+      result.bookmarked ? "Problem bookmarked" : "Bookmark removed",
+      HttpStatus.OK,
+    );
+  });
+
+  public getUserProblemStatus = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+
+    const problemService = new ProblemService();
+    const result = await problemService.getUserProblemStatus(userId);
+
+    return ResponseUtil.success(
+      res,
+      result,
+      "User problem status fetched successfully",
+      HttpStatus.OK,
+    );
+  });
 }
 
 export default ProblemController;

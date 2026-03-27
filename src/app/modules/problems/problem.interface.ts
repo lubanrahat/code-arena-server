@@ -31,10 +31,10 @@ export interface IProblemCreate {
 
 export interface IProblemFilterRequest {
   search?: string;
-  difficulty?: Difficulty;
-  topic?: string;
-  askedIn?: string;
-  status?: "SOLVED" | "UNSOLVED" | "ATTEMPTED";
+  difficulty?: Difficulty | Difficulty[];
+  topic?: string | string[];
+  askedIn?: string | string[];
+  status?: "SOLVED" | "UNSOLVED" | "ATTEMPTED" | "BOOKMARKED";
   sortBy?:
     | "recentlyAdded"
     | "difficulty_asc"

@@ -33,7 +33,10 @@ export default function registerProblemRoutes(): Router {
   router.get("/", optionalAuthenticate, problemController.getAllProblems.bind(problemController));
 
 
-  router.get("/:id", problemController.getProblemById.bind(problemController));
+  router.get("/user/status", authenticate, problemController.getUserProblemStatus.bind(problemController));
+  router.get("/get-solved-problem", authenticate, problemController.getAllProblemSolveByUser.bind(problemController));
+
+  router.get("/:id", optionalAuthenticate, problemController.getProblemById.bind(problemController));
 
   router.delete(
     "/:id",
@@ -42,7 +45,7 @@ export default function registerProblemRoutes(): Router {
     problemController.deleteProblem.bind(problemController),
   );
 
-  router.get("/get-solved-problem", authenticate, problemController.getAllProblemSolveByUser.bind(problemController));
+  router.post("/:id/bookmark", authenticate, problemController.toggleBookmark.bind(problemController));
 
   return router;
 }
