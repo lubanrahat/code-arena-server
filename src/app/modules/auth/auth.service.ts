@@ -64,6 +64,7 @@ class AuthService {
         userName: user.userName,
         firstName: user.firstName,
         lastName: user.lastName,
+        isPremium: user.isPremium,
       },
       config.jwt.secret,
       {
@@ -114,6 +115,7 @@ class AuthService {
         userName: user.userName,
         firstName: user.firstName,
         lastName: user.lastName,
+        isPremium: user.isPremium,
       },
       config.jwt.secret,
       {
