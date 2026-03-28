@@ -53,7 +53,7 @@ export class PaymentService {
           quantity: 1,
         };
 
-    const domainUrl = config.client.url || "http://localhost:3000";
+    const domainUrl = config.client.url || "https://code-arena-client.vercel.app";
     const backendUrl =
       config.backend.url || "https://code-arena-server.vercel.app/api/v1";
 
