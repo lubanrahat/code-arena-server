@@ -27,6 +27,7 @@ const envSchema = z.object({
   STRIPE_PRICE_MONTHLY: z.string().min(1, "STRIPE_PRICE_MONTHLY is required"),
   STRIPE_PRICE_YEARLY: z.string().min(1, "STRIPE_PRICE_YEARLY is required"),
   CLIENT_URL: z.string().url("CLIENT_URL must be a valid URL"),
+  BACKEND_URL: z.string().url("BACKEND_URL must be a valid URL"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -73,7 +74,10 @@ const config = {
   },
   client: {
     url: env.CLIENT_URL,
-  }
+  },
+  backend: {
+    url: env.BACKEND_URL,
+  },
 };
 
 export default config;

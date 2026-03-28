@@ -53,9 +53,9 @@ export class PaymentService {
           quantity: 1,
         };
 
-    const domainUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const domainUrl = config.client.url || "http://localhost:3000";
     const backendUrl =
-      process.env.API_BASE_URL || "http://localhost:8080/api/v1";
+      config.backend.url || "https://code-arena-server.vercel.app/api/v1";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
