@@ -9,7 +9,7 @@ const connectionString = `${config.database.url}`;
 
 const pool = new Pool({ connectionString });
 
-const adapter = new PrismaPg({ connectionString });
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 pool.on("connect", () => {

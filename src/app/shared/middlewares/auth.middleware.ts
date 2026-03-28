@@ -12,7 +12,13 @@ export const authenticate = (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies?.token;
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization) {
+      const parts = req.headers.authorization.split(" ");
+      if (parts[0] === "Bearer" && parts[1]) {
+        token = parts[1];
+      }
+    }
 
     if (!token) {
       return next(
@@ -34,7 +40,13 @@ export const optionalAuthenticate = (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies?.token;
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization) {
+      const parts = req.headers.authorization.split(" ");
+      if (parts[0] === "Bearer" && parts[1]) {
+        token = parts[1];
+      }
+    }
     if (token) {
       const payload = JwtService.verifyToken(token, config.jwt.secret);
       req.user = payload;

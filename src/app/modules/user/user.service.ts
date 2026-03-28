@@ -2,6 +2,7 @@ import prisma from "../../lib/prisma";
 import type { Difficulty } from "../../../../generated/prisma/client";
 import AppError from "../../shared/errors/app-error";
 import HttpStatus from "../../shared/constants/http-status";
+import { logger } from "../../shared/logger/logger";
 
 class UserService {
   public getProfile = async (userId: string) => {
@@ -22,12 +23,14 @@ class UserService {
     });
 
     if (!user) {
+      logger.error(`User not found: ${userId}`);
       throw new AppError(
         "User not found",
         HttpStatus.NOT_FOUND,
         "USER_NOT_FOUND",
       );
     }
+    logger.info(`Fetching profile info for user: ${userId}`);
 
     if (!user.profile) {
       await prisma.profile.create({ data: { userId } });
@@ -171,35 +174,39 @@ class UserService {
         : "0 hours";
 
     // Ranking (computed from ProblemSolved counts across all users)
-    const allSolved = await prisma.problemSolved.findMany({
-      select: { userId: true },
+    console.log("Calculating global ranks...");
+    const solvedCounts = await prisma.problemSolved.groupBy({
+      by: ["userId"],
+      _count: {
+        problemId: true,
+      },
     });
-    const solvedCountByUser: Record<string, number> = {};
-    for (const row of allSolved) {
-      solvedCountByUser[row.userId] = (solvedCountByUser[row.userId] || 0) + 1;
-    }
 
-    const solvedEntriesSorted = Object.entries(solvedCountByUser).sort(
-      (a, b) => b[1] - a[1],
-    );
+    const solvedEntriesSorted = solvedCounts
+      .map((entry) => ({
+        userId: entry.userId,
+        count: entry._count.problemId,
+      }))
+      .sort((a, b) => b.count - a.count);
 
     const globalRank = (() => {
-      const idx = solvedEntriesSorted.findIndex(([id]) => id === userId);
+      const idx = solvedEntriesSorted.findIndex((e) => e.userId === userId);
       return idx >= 0 ? idx + 1 : solvedEntriesSorted.length + 1;
     })();
 
     const institution = user.profile?.institution;
     let universityRank = globalRank;
     if (institution) {
+      logger.debug(`Calculating university rank for: ${institution}`);
       const uniUserIds = await prisma.profile.findMany({
         where: { institution },
         select: { userId: true },
       });
       const uniSet = new Set(uniUserIds.map((p) => p.userId));
-      const uniEntriesSorted = solvedEntriesSorted.filter(([id]) =>
-        uniSet.has(id),
+      const uniEntriesSorted = solvedEntriesSorted.filter((e) =>
+        uniSet.has(e.userId),
       );
-      const idx = uniEntriesSorted.findIndex(([id]) => id === userId);
+      const idx = uniEntriesSorted.findIndex((e) => e.userId === userId);
       universityRank = idx >= 0 ? idx + 1 : 1;
     }
 

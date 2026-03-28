@@ -16,10 +16,11 @@ function createApplication(): Application {
         "http://localhost:3000",
         "https://localhost:3000",
         "http://localhost:5173",
+        "https://code-arena-client.vercel.app",
       ],
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE"],
-      allowedHeaders: ["Content-Type", "Authorization"],
+      allowedHeaders: ["Content-Type", "Authorization", "Cookie", "cookie"],
     }),
   );
 
