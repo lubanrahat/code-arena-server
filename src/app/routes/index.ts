@@ -10,6 +10,7 @@ import registerAiDiscussionRoutes from "../modules/ai-discussion/ai-discussion.r
 import registerAdminRoutes from "../modules/admin/admin.routes";
 import registerPaymentRoutes from "../modules/payment/payment.routes";
 import registerContributeRoutes from "../modules/contribute/contribute.routes";
+import registerSolutionRoutes from "../modules/solution/solution.routes";
 
 export const registerIndexRoutes = (): Router => {
   const router: Router = Router();
@@ -25,6 +26,7 @@ export const registerIndexRoutes = (): Router => {
   router.use("/admin", registerAdminRoutes());
   router.use("/payment", registerPaymentRoutes());
   router.use("/contribute", registerContributeRoutes());
+  router.use("/solution", registerSolutionRoutes());
 
   return router;
 };
