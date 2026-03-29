@@ -37,6 +37,7 @@ model User {
   aiDiscussions AiDiscussion[]
   payments      Payment[]
   bookmarks     Bookmark[]
+  contributions Contribution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -254,4 +255,31 @@ model Bookmark {
 
   @@unique([userId, problemId])
   @@map("bookmarks")
+}
+
+model Contribution {
+  id               String             @id @default(uuid())
+  userId           String?
+  name             String
+  email            String
+  countryCode      String
+  contactNumber    String?
+  contributionType String
+  experience       String
+  portfolioLink    String?
+  message          String?
+  status           ContributionStatus @default(PENDING)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("contributions")
+}
+
+enum ContributionStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
 }
