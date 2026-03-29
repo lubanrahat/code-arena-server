@@ -6,20 +6,34 @@ import { errorHandler } from "./shared/middlewares/global-error.middleware";
 import { notFound } from "./shared/middlewares/not-found.middlewares";
 import { IndexRouter } from "./routes";
 import cookieParser from "cookie-parser";
+import config from "./config/env";
 
 function createApplication(): Application {
   const app: Application = express();
 
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://localhost:5173",
+    config.client.url?.replace(/\/$/, ""),
+    "https://code-arena-client.vercel.app",
+  ].filter(Boolean) as string[];
+
   app.use(
     cors({
-      origin: [
-        "http://localhost:3000",
-        "https://localhost:3000",
-        "http://localhost:5173",
-        "https://code-arena-client.vercel.app",
-      ],
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true,
-      methods: ["GET", "POST", "PUT","PATCH", "DELETE"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
       allowedHeaders: ["Content-Type", "Authorization", "Cookie", "cookie"],
     }),
   );

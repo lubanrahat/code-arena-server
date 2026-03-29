@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma";
+import { logger } from "../../shared/logger/logger";
 import type { ContributionStatus } from "../../../../generated/prisma/client";
 import type {
   IContributeCreate,
@@ -10,15 +11,19 @@ import AppError from "../../shared/errors/app-error";
 const createContribution = async (data: IContributeCreate) => {
   const existing = await prisma.contribution.findFirst({
     where: {
-      userId: data.userId,
+      email: data.email,
+      contributionType: data.contributionType,
     },
   });
 
   if (existing) {
+    logger.warn(`Contribution already exists for email: ${data.email}, type: ${data.contributionType}`);
     throw new AppError(
       "A contribution with the same email and type already exists.",
     );
   }
+
+  logger.info(`Creating contribution for ${data.email} of type ${data.contributionType}`);
   const result = await prisma.contribution.create({
     data: {
       userId: data.userId || null,
@@ -50,6 +55,8 @@ const getAllContributions = async (filters: IContributeFilterRequest) => {
   const limitNum = Math.max(1, Number(limit || 10));
   const skip = (pageNum - 1) * limitNum;
   const take = limitNum;
+
+  logger.info(`Fetching contributions: page=${pageNum}, limit=${limitNum}, status=${status}, type=${contributionType}`);
 
   const andConditions = [];
 
