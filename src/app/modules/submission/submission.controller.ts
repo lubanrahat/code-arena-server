@@ -7,10 +7,18 @@ import HttpStatus from "../../shared/constants/http-status";
 class SubmissionController {
   public getAllSubmissions = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.id;
+    const username = req.query.username as string;
 
     const submissionService = new SubmissionService();
+    let submissions: any[] = [];
 
-    const submissions = await submissionService.getAllSubmissions(userId);
+    if (username) {
+      submissions = await submissionService.getAllSubmissionsByUsername(username);
+    } else if (userId) {
+      submissions = await submissionService.getAllSubmissions(userId);
+    } else {
+      submissions = [];
+    }
 
     ResponseUtil.success(res, {
       message: "Submissions fetched successfully",

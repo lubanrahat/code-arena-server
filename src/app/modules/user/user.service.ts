@@ -248,6 +248,23 @@ class UserService {
     };
   };
 
+  public getProfileByUsername = async (username: string) => {
+    const user = await prisma.user.findUnique({
+      where: { userName: username },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new AppError(
+        "User not found",
+        HttpStatus.NOT_FOUND,
+        "USER_NOT_FOUND",
+      );
+    }
+
+    return this.getProfile(user.id);
+  };
+
   public updateProfile = async (userId: string, data: any) => {
     // Allow updating user basic Info as well (firstName, lastName, imageUrl)
     const userData: any = {};

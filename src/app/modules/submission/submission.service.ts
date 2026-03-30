@@ -22,6 +22,17 @@ class SubmissionService {
     return submission;
   };
 
+  public getAllSubmissionsByUsername = async (username: string) => {
+    const user = await prisma.user.findUnique({
+      where: { userName: username },
+      select: { id: true },
+    });
+
+    if (!user) return [];
+
+    return this.getAllSubmissions(user.id);
+  };
+
   public getSubmissionsForProblem = async (userId: string,problemId:string) => {
     const submission = await prisma.submission.findMany({
       where: {

@@ -7,6 +7,7 @@ export default function registerUserRoutes(): Router {
   const userController = new UserController();
 
   router.get("/profile", authenticate, userController.getProfile.bind(userController));
+  router.get("/:username", userController.getProfileByUsername.bind(userController));
   router.put("/profile", authenticate, userController.updateProfile.bind(userController));
 
   return router;

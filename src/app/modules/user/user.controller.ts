@@ -24,6 +24,13 @@ class UserController {
     return ResponseUtil.success(res, result, "Profile retrieved successfully");
   });
 
+  public getProfileByUsername = catchAsync(async (req: Request, res: Response) => {
+    const { username } = req.params;
+    const result = await this.userService.getProfileByUsername(username as string);
+
+    return ResponseUtil.success(res, result, "Profile retrieved successfully");
+  });
+
   public updateProfile = catchAsync(async (req: Request, res: Response) => {
     const reqUser = req.user as any;
     const userId = reqUser?.id || reqUser?.userId;
