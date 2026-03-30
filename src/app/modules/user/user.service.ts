@@ -19,6 +19,7 @@ class UserService {
         role: true,
         createdAt: true,
         profile: true,
+        isPremium: true
       },
     });
 
@@ -46,6 +47,7 @@ class UserService {
           role: true,
           createdAt: true,
           profile: true,
+          isPremium: true
         },
       });
       if (!refreshedUser) {

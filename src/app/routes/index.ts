@@ -11,6 +11,7 @@ import registerAdminRoutes from "../modules/admin/admin.routes";
 import registerPaymentRoutes from "../modules/payment/payment.routes";
 import registerContributeRoutes from "../modules/contribute/contribute.routes";
 import registerSolutionRoutes from "../modules/solution/solution.routes";
+import registerLeaderboardRoutes from "../modules/leaderboard/leaderboard.routes";
 
 export const registerIndexRoutes = (): Router => {
   const router: Router = Router();
@@ -27,6 +28,7 @@ export const registerIndexRoutes = (): Router => {
   router.use("/payment", registerPaymentRoutes());
   router.use("/contribute", registerContributeRoutes());
   router.use("/solution", registerSolutionRoutes());
+  router.use("/leaderboard", registerLeaderboardRoutes());
 
   return router;
 };
