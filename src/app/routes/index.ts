@@ -15,7 +15,7 @@ import registerLeaderboardRoutes from "../modules/leaderboard/leaderboard.routes
 
 export const registerIndexRoutes = (): Router => {
   const router: Router = Router();
-
+  
   router.use(registerHealthRoutes());
   router.use("/auth", registerAuthRoutes());
   router.use("/problems", registerProblemRoutes());
